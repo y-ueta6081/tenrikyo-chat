@@ -234,8 +234,8 @@ button.send:disabled { opacity: 0.4; cursor: not-allowed; }
 </footer>
 
 <script>
-const API_KEY = "AQ.Ab8RN6KXGT6qw4QnXTUtBQm3YNt3-jbxeEGR1aU0DedXVNYF-Q";
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbztQioQnp2CzYyl91BE3Q5OtHBPPBLevZfGWeYpvyAer_dgr3E7E11sTbDOOlOlZBD5gQ/exec";
+
 
 const SYSTEM = `あなたは、天理教の教え（お道の理）を土台として、相談者が自らの心を見つめ直し、たんのうの心へ近づけるよう寄り添う「お悩み相談・心のふしサポーター」です。
 
@@ -324,7 +324,7 @@ async function send() {
       system_instruction: { parts: [{ text: SYSTEM }] },
       contents: history
     };
-    const res = await fetch(API_URL, {
+    const res = await fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
