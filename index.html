@@ -234,8 +234,8 @@ button.send:disabled { opacity: 0.4; cursor: not-allowed; }
 </footer>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbztQioQnp2CzYyl91BE3Q5OtHBPPBLevZfGWeYpvyAer_dgr3E7E11sTbDOOlOlZBD5gQ/exec";
-
+// ★ここにAPIキーを貼り付けてください★
+const API_KEY = "YOUR_API_KEY_HERE";
 
 const SYSTEM = `あなたは、天理教の教え（お道の理）を土台として、相談者が自らの心を見つめ直し、たんのうの心へ近づけるよう寄り添う「お悩み相談・心のふしサポーター」です。
 
@@ -315,25 +315,31 @@ async function send() {
 
   if (history.length > 0) addDivider();
   bubbleUser(text);
-  history.push({ role: 'user', parts: [{ text }] });
+  history.push({ role: 'user', content: text });
 
   const load = bubbleAI('<div class="dots"><span></span><span></span><span></span></div>');
 
   try {
-    const body = {
-      system_instruction: { parts: [{ text: SYSTEM }] },
-      contents: history
-    };
-    const res = await fetch(GAS_URL, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system: SYSTEM,
+        messages: history
+      })
     });
     const data = await res.json();
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'しばらくお待ちください。';
+    const reply = data?.content?.[0]?.text || 'しばらくお待ちください。';
     const clean = reply.replace(/[\u{1F300}-\u{1FFFF}]/gu, '');
     load.innerHTML = clean.replace(/\n/g, '<br>');
-    history.push({ role: 'model', parts: [{ text: reply }] });
+    history.push({ role: 'assistant', content: reply });
   } catch(e) {
     load.innerHTML = '申し訳ございません、接続に問題が起きました。今しばらくお待ちください。';
   }
